@@ -27,9 +27,9 @@ var (
 
 func main() {
 
-	relay.Info.Name = "GM Relay"
+	relay.Info.Name = "CATSTRR"
 	relay.Info.PubKey = "f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8"
-	relay.Info.Description = "A relay accepting only GM notes!"
+	relay.Info.Description = "A relay accepting only notes with cat pictures 🐱"
 	relay.Info.Icon = ""
 
 	db := sqlite3.SQLite3Backend{DatabaseURL: "./db/db"}
