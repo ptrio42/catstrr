@@ -30,7 +30,7 @@ func main() {
 	relay.Info.Name = "CATSTRR"
 	relay.Info.PubKey = "f1f9b0996d4ff1bf75e79e4cc8577c89eb633e68415c7faf74cf17a07bf80bd8"
 	relay.Info.Description = "A relay accepting only notes with cat pictures 🐱"
-	relay.Info.Icon = ""
+	relay.Info.Icon = "https://image.nostr.build/aadc540f6d6d0a6afeb2d97b78e2961aa55a6ea344ba347791ab09413c874e3a.jpg"
 
 	db := sqlite3.SQLite3Backend{DatabaseURL: "./db/db"}
 	if err := db.Init(); err != nil {
