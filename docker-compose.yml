@@ -1,0 +1,18 @@
+services:
+  node:
+    build:
+      context: .
+      dockerfile: ./docker/node/Dockerfile
+    container_name: catstrr-node
+    ports:
+      - "3003:3003"
+    restart: always
+
+  relay:
+    container_name: catstrr-relay
+    build:
+      context: .
+      dockerfile: ./docker/relay/Dockerfile
+    ports:
+      - "3388:3388"
+    restart: always
