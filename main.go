@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"github.com/fiatjaf/eventstore/sqlite3"
 	"github.com/fiatjaf/khatru"
+	"github.com/fiatjaf/khatru/policies"
 	"github.com/nbd-wtf/go-nostr"
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 type RequestPayload struct {
@@ -37,24 +39,46 @@ func main() {
 		panic(err)
 	}
 
+	relay.RejectEvent = append(relay.RejectEvent,
+		policies.EventIPRateLimiter(5, time.Minute*1, 30),
+		policies.RejectEventsWithBase64Media,
+	)
+
+	relay.RejectFilter = append(relay.RejectFilter,
+		policies.NoEmptyFilters,
+		policies.NoComplexFilters,
+	)
+
+	relay.RejectConnection = append(relay.RejectConnection,
+		policies.ConnectionRateLimiter(10, time.Minute*2, 30),
+	)
+
 	relay.StoreEvent = append(relay.StoreEvent, db.SaveEvent)
 	relay.QueryEvents = append(relay.QueryEvents, db.QueryEvents)
 	relay.DeleteEvent = append(relay.DeleteEvent, db.DeleteEvent)
-	relay.RejectEvent = append(relay.RejectEvent, func(ctx context.Context, event *nostr.Event) (reject bool, msg string) {
-		imageURLPattern := `(?i)(https?://[^\s]+(\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.svg|\.webp|\.tiff))`
-		regex := regexp.MustCompile(imageURLPattern)
+	relay.RejectEvent = append(relay.RejectEvent,
+		func(ctx context.Context, event *nostr.Event) (reject bool, msg string) {
+			imageURLPattern := `(?i)(https?://[^\s]+(\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.svg|\.webp|\.tiff))`
+			regex := regexp.MustCompile(imageURLPattern)
 
-		imageUrl := regex.FindString(event.Content)
+			imageUrl := regex.FindString(event.Content)
 
-		if imageUrl == "" {
-			return true, "No image found in the note."
-		}
+			if imageUrl == "" {
+				catEmojisRegex := regexp.MustCompile(`[\u{1F408}\u{1F431}\u{1F63A}\u{1F638}\u{1F639}\u{1F63B}\u{1F63C}\u{1F63D}\u{1F640}]`)
+				catWordRegex := regexp.MustCompile(`\bcat(s?)\b`)
 
-		if !isCatImage(imageUrl) {
-			return true, "Not a cat image"
-		}
-		return false, ""
-	})
+				if catEmojisRegex.MatchString(event.Content) || catWordRegex.MatchString(event.Content) {
+					return false, ""
+				}
+				
+				return true, "No cat emoji or word found."
+			}
+
+			if !isCatImage(imageUrl) {
+				return true, "Not a cat image"
+			}
+			return false, ""
+		})
 
 	fmt.Println("running on :3388")
 
