@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"github.com/fiatjaf/eventstore/sqlite3"
 	"github.com/fiatjaf/khatru"
+	"github.com/fiatjaf/khatru/policies"
 	"github.com/nbd-wtf/go-nostr"
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 type RequestPayload struct {
@@ -37,9 +39,17 @@ func main() {
 		panic(err)
 	}
 
+	relay.RejectConnection = append(relay.RejectConnection,
+		policies.ConnectionRateLimiter(10, time.Minute*2, 30),
+	)
+
 	relay.StoreEvent = append(relay.StoreEvent, db.SaveEvent)
 	relay.QueryEvents = append(relay.QueryEvents, db.QueryEvents)
 	relay.DeleteEvent = append(relay.DeleteEvent, db.DeleteEvent)
+	relay.RejectEvent = append(relay.RejectEvent,
+		policies.RejectEventsWithBase64Media,
+		policies.EventIPRateLimiter(5, time.Minute*1, 30),
+	)
 	relay.RejectEvent = append(relay.RejectEvent, func(ctx context.Context, event *nostr.Event) (reject bool, msg string) {
 		imageURLPattern := `(?i)(https?://[^\s]+(\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.svg|\.webp|\.tiff))`
 		regex := regexp.MustCompile(imageURLPattern)
