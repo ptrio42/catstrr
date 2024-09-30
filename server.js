@@ -2,7 +2,9 @@ import express from 'express';
 import { pipeline, env } from '@xenova/transformers';
 
 // env.allowLocalModels = true;
-// env.allowRemoteModels = false;
+env.allowRemoteModels = false;
+env.cacheDir = './.cache';
+env.localModelPath = './model';
 // env.userBrowserCache = false;
 
 class Pipeline {
@@ -24,7 +26,7 @@ app.use(express.json());
 
 app.post('/process-image', async (req, res) => {
   const image = req.body.image;
-  env.cacheDir = './.cache';
+
   const detector = await Pipeline.getInstance();
   const response = await detector(image);
   const isCatImage = response.findIndex(({label, score}) => label === 'cat') > -1;

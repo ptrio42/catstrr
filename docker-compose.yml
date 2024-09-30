@@ -19,3 +19,4 @@ services:
     volumes:
       - "./db:/app/db"
       - "./.cache:/app/.cache"
+      - "./model:/app/model"
