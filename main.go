@@ -59,14 +59,15 @@ func main() {
 		imageURLPattern := `(?i)(https?://[^\s]+(\.jpg|\.jpeg|\.png|\.gif|\.bmp|\.svg|\.webp|\.tiff))`
 		regex := regexp.MustCompile(imageURLPattern)
 
-		imageUrl := regex.FindString(event.Content)
+		// match max 2 images
+		imageUrls := regex.FindAllString(event.Content, 2)
 
-		if imageUrl == "" {
+		if imageUrls == nil {
 			return true, "No image found in the note."
 		}
 
-		if !isCatImage(imageUrl) {
-			return true, "Not a cat image"
+		if !isCatImage(imageUrls[0]) && !isCatImage(imageUrls[1]) {
+			return true, "Not cat images found."
 		}
 		return false, ""
 	})
