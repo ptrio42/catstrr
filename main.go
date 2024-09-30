@@ -70,7 +70,7 @@ func main() {
 				if catEmojisRegex.MatchString(event.Content) || catWordRegex.MatchString(event.Content) {
 					return false, ""
 				}
-				
+
 				return true, "No cat emoji or word found."
 			}
 
