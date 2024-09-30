@@ -16,3 +16,6 @@ services:
     ports:
       - "3388:3388"
     restart: always
+    volumes:
+      - "./db:/app/db"
+      - "./.cache:/app/.cache"
