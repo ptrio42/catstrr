@@ -2,7 +2,7 @@ import express from 'express';
 import { pipeline, env } from '@xenova/transformers';
 
 // env.allowLocalModels = true;
-env.allowRemoteModels = false;
+// env.allowRemoteModels = false;
 // env.userBrowserCache = false;
 
 class Pipeline {
