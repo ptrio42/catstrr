@@ -43,6 +43,11 @@ func main() {
 		policies.ConnectionRateLimiter(10, time.Minute*2, 30),
 	)
 
+	relay.RejectFilter = append(relay.RejectFilter,
+		policies.NoEmptyFilters,
+		policies.NoComplexFilters,
+	)
+
 	relay.StoreEvent = append(relay.StoreEvent, db.SaveEvent)
 	relay.QueryEvents = append(relay.QueryEvents, db.QueryEvents)
 	relay.DeleteEvent = append(relay.DeleteEvent, db.DeleteEvent)
