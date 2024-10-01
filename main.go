@@ -66,8 +66,15 @@ func main() {
 			return true, "No image found in the note."
 		}
 
-		if !isCatImage(imageUrls[0]) && !isCatImage(imageUrls[1]) {
-			return true, "Not cat images found."
+		if len(imageUrls) == 1 {
+			if !isCatImage(imageUrls[0]) {
+				return true, "No cat images found."
+			}
+		} else if len(imageUrls) >= 2 {
+			// Check if both images are not cat images
+			if !isCatImage(imageUrls[0]) && !isCatImage(imageUrls[1]) {
+				return true, "No cat images found."
+			}
 		}
 		return false, ""
 	})
